@@ -18,7 +18,6 @@ UPLOAD_TO_HF=true
 HF_REPO_ID="ai2-adapt-dev/oe-eval-bon-candidates"
 HF_PATH_IN_REPO="${GENERATOR##*/}-n-${N_COMPLETIONS}"
 
-
 GENERATION_KWARGS="{
     \"repeats\": 1,
     \"temperature\": ${TEMPERATURE},
@@ -116,8 +115,7 @@ declare -A TASK_SPECS=(
     }"
 )
 
-
-TASKS=(
+TASKS_TO_RUN=(
     'gsm8k'
     'codex_humaneval'
     'codex_humanevalplus'
@@ -128,12 +126,10 @@ TASKS=(
     'bbh'  # This is a suite of tasks. Run this sepeartely with PER_TASK_MAX_EXAMPLES=50.
 )
 
-
-
 # Here for each task, we run oe-eval N_COMPLETIONS times to get N_COMPLETIONS generations for each task.
 # We do this outside oe-eval because in this way we can get the score for each generation.
 # These scores will be used in bon evaluation, without rerunning the oe-eval.
-for TASK_NAME in "${TASKS[@]}"; do
+for TASK_NAME in "${TASKS_TO_RUN[@]}"; do
     TASK_SPEC_ARGS=${TASK_SPECS[${TASK_NAME}]}
     ACTUAL_TASK_NAME=$(echo "${TASK_SPEC_ARGS}" | jq -r '.task_name')
     TASK_SPEC_ARGS=$(echo "${TASK_SPEC_ARGS}" | jq 'del(.task_name)')
@@ -162,7 +158,7 @@ for TASK_NAME in "${TASKS[@]}"; do
 done
 
 PROCESSED_DIR=${OUTPUT_DIR}/${SUBDIR}/processed
-for TASK_NAME in "${TASKS[@]}"; do
+for TASK_NAME in "${TASKS_TO_RUN[@]}"; do
     mkdir -p ${PROCESSED_DIR}/${TASK_NAME}
     python scripts/process_bon_data.py \
         --task_name ${TASK_NAME} \
