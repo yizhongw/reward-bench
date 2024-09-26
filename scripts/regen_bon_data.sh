@@ -3,7 +3,7 @@
 
 # set variables
 GENERATOR="allenai/tulu-2-13b"
-N_COMPLETIONS=1
+N_COMPLETIONS=16
 TEMPERATURE=0.7
 TOP_P=1.0
 GPU_COUNT=4
