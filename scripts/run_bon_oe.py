@@ -234,6 +234,9 @@ def main():
         "{% endif %}"
         "{% endfor %}"
     )
+    # this is critical as tulu template as an <eos> token at the end of the conversation
+    # and we need to use a separate pad toekn to differentiate between the eos and pad tokens
+    tokenizer.add_special_tokens({'pad_token': '<pad>'})
     
     dataset = load_bon_dataset(
         hf_repo=args.bon_candidates_hf_repo,
@@ -277,6 +280,7 @@ def main():
         model_kwargs = {"device_map": {"": current_device}}
 
     model = model_builder(args.model, **model_kwargs, trust_remote_code=trust_remote_code)
+    model.resize_token_embeddings(len(tokenizer))
     reward_pipe = pipeline_builder(
         "text-classification",
         model=model,
